@@ -37,7 +37,8 @@ You need a Google account. Nothing is installed on your computer.
 1. **Create a new, empty Google Sheet.**
 2. Open **Extensions → Apps Script**. An editor opens with one file, `Code.gs`. Delete its contents (or
    the whole file).
-3. Add the files from this repository:
+3. Add the files from this repository (or push them all at once with clasp, see
+   [Adding the files with clasp](#adding-the-files-with-clasp)):
    - Click **+ → Script** and create `logic`, `sheet` and `setup`. Paste the contents of `logic.js`,
      `sheet.js` and `setup.js` into them. Apps Script names them `.gs`; that is fine.
    - Click **+ → HTML** and create `ImportDialog` (exactly that name). Paste the contents of
@@ -64,7 +65,47 @@ You can reorder the tabs.
 ### Updating the code
 
 When a new version comes out, open **Extensions → Apps Script**, replace the contents of each file with the
-new version, save, and reload the sheet. Your data is not touched.
+new version, save, and reload the sheet. Your data is not touched. With clasp, it is `git pull` and
+`clasp push`.
+
+### Adding the files with clasp
+
+[clasp](https://github.com/google/clasp) is Google's command-line tool for Apps Script. It uploads all the
+files of this repository to your sheet's script in one go, instead of copying them one by one. It needs
+[Node.js](https://nodejs.org).
+
+One-time setup:
+
+1. Install clasp and log in with your Google account (a browser window opens):
+   ```bash
+   npm install -g @google/clasp
+   clasp login
+   ```
+2. Allow clasp to change your scripts: open <https://script.google.com/home/usersettings> and switch
+   **Google Apps Script API** on.
+3. Get the code:
+   ```bash
+   git clone https://github.com/praylorswift/epgp-sheets.git
+   cd epgp-sheets
+   ```
+4. Link the folder to your sheet's script. In the sheet, open **Extensions → Apps Script → Project
+   Settings** (the gear) and copy the **Script ID**. Create a file `.clasp.json` in the folder:
+   ```json
+   {"scriptId": "paste the script id here"}
+   ```
+   `.clasp.json` is yours; it is not committed (see `.gitignore`).
+
+Then, every time:
+
+```bash
+clasp push
+```
+
+Answer **yes** when it asks to overwrite the manifest. Reload the sheet to see the menu.
+
+`clasp push` makes the script exactly like the folder: files that are only in the online editor (such as
+the default `Code.gs`) are removed, and edits you made in the online editor are overwritten. Make changes
+in the files, not in the editor.
 
 ---
 
@@ -395,6 +436,8 @@ tabs, can be pasted straight into the first empty row of History, column A:
 | `sheet.js` | Everything that reads or writes the sheet: the menu, the tabs and their columns |
 | `setup.js` | Set up sheet: builds all tabs, formulas and formatting in a new spreadsheet |
 | `ImportDialog.html` | The Import history dialog |
+| `appsscript.json` | The Apps Script project settings (V8), used by clasp |
+| `.claspignore` | Which files clasp uploads |
 
 The tab and column layout is described at the top of `sheet.js`. A change to a tab's columns has to be
 made in `sheet.js` and `setup.js`.

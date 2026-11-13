@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body { font-family: Arial, sans-serif; font-size: 13px; margin: 0; }
+      textarea { width: 100%; height: 300px; box-sizing: border-box; font-family: monospace; font-size: 12px; }
+      #message { white-space: pre-wrap; margin: 8px 0; min-height: 1em; }
+      .error { color: #c00; }
+      button { margin-right: 8px; }
+    </style>
+  </head>
+  <body>
+    <p>Paste the JSON exported by the addon. Its events are added at the bottom of History.</p>
+    <textarea id="json"></textarea>
+    <div id="message"></div>
+    <button id="import" onclick="submit()">Import</button>
+    <button onclick="google.script.host.close()">Close</button>
+    <script>
+      function submit() {
+        const button = document.getElementById('import');
+        const message = document.getElementById('message');
+        button.disabled = true;
+        message.className = '';
+        message.textContent = 'Importing...';
+        google.script.run
+          .withSuccessHandler(function (text) {
+            message.textContent = text;
+            document.getElementById('json').value = '';
+            button.disabled = false;
+          })
+          .withFailureHandler(function (error) {
+            message.className = 'error';
+            message.textContent = error.message;
+            button.disabled = false;
+          })
+          .importJson(document.getElementById('json').value);
+      }
+    </script>
+  </body>
+</html>
